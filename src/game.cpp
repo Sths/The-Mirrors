@@ -71,12 +71,6 @@ void Display()
 	
 	SkyBox.renderSkybox();
 
-    GLfloat lightPosition[] = {0.0f, 2.0f, 1.0f, 1.0f};
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHTING);
-
-
 	glColor4f(1, 1, 1, 1);
 	glBindTexture(GL_TEXTURE_2D, floor_texture[1]);
 	
@@ -93,15 +87,10 @@ void Display()
 	// all.print();
 	
 	DrawLine();
-	/*
-	for (unsigned i = 0; i < Mirrors.size(); i++) Mirrors[i].Draw();
 	
-	glEnable(GL_BLEND);
-	glDepthMask(GL_FALSE);
+	for (unsigned i = 0; i < Mirrors.size(); i++) Mirrors[i].Draw();
 	for (unsigned i = 0; i < Lasers.size(); i++) Lasers[i].Draw();
-	glDepthMask(GL_TRUE);
-	*/
-
+	
 	glutSwapBuffers(); 
 }
 
@@ -170,14 +159,22 @@ void Init_GL()
 	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
 	glEnable(GL_TEXTURE_2D);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);				// Black Background
-	glClearDepth(1.0f);									// Depth Buffer Setup
+	glClearDepth(1.0f);     							// Depth Buffer Setup
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-
 	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
 	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
+
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
-		
+	
+	GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f }; 
+	GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat lightPosition[] = {-3.0f, 12.0f, -3.0f, 1.0f};
+	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);	
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);	
+    glLightfv(GL_LIGHT1, GL_POSITION, lightPosition);
+	glEnable(GL_LIGHT1);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);						// Enable Material Coloring
 	
