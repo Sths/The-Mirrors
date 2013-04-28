@@ -22,6 +22,8 @@ void CHC_Mirror::Load() {
 			Fin >> n3;
 			while (n3 --) {
 				float x, y, z;
+				Fin >> x >> y >> z;
+				glColor4f(x, y, z, 1.0);
 				for (int i = 0; i < 3; i++) {
 					Fin >> x >> y >> z;
 					glVertex3f(x, y, z);
@@ -33,6 +35,8 @@ void CHC_Mirror::Load() {
 			Fin >> n4;
 			while (n4 --) {
 				float x, y, z;
+				Fin >> x >> y >> z;
+				glColor4f(x, y, z, 1.0);
 				for (int i = 0; i < 4; i++) {
 					Fin >> x >> y >> z;
 					glVertex3f(x, y, z);

@@ -168,7 +168,7 @@ void Init_GL()
 
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 	
-	GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f }; 
+	GLfloat LightAmbient[]= { 1.0f, 1.0f, 1.0f, 1.0f }; 
 	GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
     GLfloat lightPosition[] = {-3.0f, 12.0f, -3.0f, 1.0f};
 	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);	
