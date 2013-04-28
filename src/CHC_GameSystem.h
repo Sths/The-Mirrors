@@ -15,8 +15,8 @@
 #define SENDER_ID	2
 #define RECEIVER_ID	3
 
-static const int dx[4] = {0, 1, -1, 0};
-static const int dy[4] = {1, 0, 0, -1};
+static const int dx[4] = {0, 1, 0, -1};
+static const int dy[4] = {1, 0, -1, 0};
 
 static const int DirChange[1][4][8] = 
 { { {-1, -1, -1, 2, 4 ,6 , -1, -1},

@@ -8,7 +8,7 @@ const double pi = 3.1415926;
 
 #define KEY_NUM 256
 
-#define MOUSE_OTHER_STATE	0
+#define MOUSE_OTHER_STATE	255
 
 #define moveSensity 0.23		// 移动单位距离
 #define RotateSensity 0.02		// 旋转单位角度
@@ -29,7 +29,7 @@ const int Gridx = 1;
 const int Gridy = 1;
 const int Gridz = 1;
 
-#define Grid(x, y) CHC_Vector3(Gridx * x, 0, Gridy * y)
+#define Grid(x, y) CHC_Vector3(Gridx * (x), 0, Gridy * (y))
 #define Dir2Normal(dir) CHC_Vector3(0, dir / 8.0, 0);
 #define Color2Vector(color) CHC_Vector3((color >> 16) / 256.0, ((_color & 0xFF00) >> 8) / 256.0, (_color & 0xFF) / 256.0)
 #define SEP(T) (T)[0], (T)[1], (T)[2]
@@ -37,5 +37,8 @@ const int Gridz = 1;
 /* Game System */
 #define MAP_SIZE_WIDTH 17
 #define MAP_SIZE_HEIGHT 17
+
+static char GameWindowName[] = "Reflection";
+#define MOUSEBIAS	0.5f
 
 #endif CHC_CONSTANTS_H

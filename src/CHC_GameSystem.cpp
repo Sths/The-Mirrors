@@ -1,8 +1,8 @@
 #include "CHC_GameSystem.h"
 #include <stdio.h>
 
-CHC_Mirror	DrawMirror;
-CHC_Laser	DrawLaser;
+extern CHC_Mirror	DrawMirror;
+extern CHC_Laser	DrawLaser;
 
 void CHC_GameSystem::Restart()
 {
@@ -15,7 +15,7 @@ void CHC_GameSystem::Restart()
 /* Load Map from file */
 bool CHC_GameSystem::LoadMap(char * filename) {
 	FILE * fin;
-	if (! (fin = fopen(filename, "r"))) return false;
+	if ((fin = fopen(filename, "r")) == NULL) return false;
 
 	fscanf(fin, "%d%d", &map_w, &map_h);	
 	for (int i = 0; i != map_w; i++)
@@ -25,20 +25,18 @@ bool CHC_GameSystem::LoadMap(char * filename) {
 	fscanf(fin, "%d%d", &num_sender, &num_receiver);
 	int x, y, d, r, g, b;
 	for (int i = 0; i != num_sender; i++) {
-		scanf("%d%d%d", &x, &y, &d);
+		fscanf(fin, "%d%d%d", &x, &y, &d);
 		ori_map[x][y].dir = d;
 		ori_map[x][y].obj = SENDER_ID;
-		scanf("%d%d%d", &r, &g, &b);
-		for (int k = 0; k != 4; k++)
-			ori_map[x][y].col[k].setColor(r, g, b);
+		fscanf(fin, "%d%d%d", &r, &g, &b);
+		ori_map[x][y].col[d / 2].setColor(r, g, b);
 	}
 	for (int i = 0; i != num_receiver; i++) {
-		scanf("%d%d%d", &x, &y, &d);
+		fscanf(fin, "%d%d%d", &x, &y, &d);
 		ori_map[x][y].dir = d;
 		ori_map[x][y].obj = RECEIVER_ID;
-		scanf("%d%d%d", &r, &g, &b);
-		for (int k = 0; k != 4; k++)	
-			ori_map[x][y].col[k].setColor(r, g, b);
+		fscanf(fin, "%d%d%d", &r, &g, &b);
+		ori_map[x][y].col[d / 2].setColor(r, g, b);
 	}
 	fscanf(fin, "%d", &num_mirror);
 
@@ -91,12 +89,30 @@ void CHC_GameSystem::GameDraw()
 				DrawMirror.Set_Direction(now_map[i][j].dir);
 				DrawMirror.Set_Position(i, j);
 				DrawMirror.Draw();
+			} else 
+			if (now_map[i][j].isSender()) {
+				glPushMatrix();
+					glTranslated((float)i, 0.5, (float)j);
+					glColor3f(0.0, 0.0, 1.0);
+					glutSolidCube(1);
+				glPopMatrix();
+			} else 
+			if (now_map[i][j].isReceive()) {
+				glPushMatrix();
+					glTranslated((float)i, 0.5, (float)j);
+					glColor3f(1.0, 0.0, 0.0);
+					glutSolidCube(1);
+				glPopMatrix();
 			}
 		}
 	for (int i = 0; i != map_w; i++)
 		for (int j = 0; j != map_h; j++) {
 			if (now_map[i][j].col[1].notZero()) {
-				DrawLaser.set(i, j, i, j+1, now_map[i][j].col[1].changeToRGB());
+				DrawLaser.set(i, j, i+1, j, now_map[i][j].col[1].changeToRGB());
+				DrawLaser.Draw();
+			}
+			if (now_map[i][j].col[0].notZero()) {
+				DrawLaser.set(i, j, i, j+1, now_map[i][j].col[0].changeToRGB());
 				DrawLaser.Draw();
 			}
 		}
@@ -123,12 +139,13 @@ void CHC_GameSystem::Refresh()
 			while (true) {
 				mark[x][y][d] = true;
 				now_map[x][y].col[d / 2].add(col);
-				x += dx[d / 2], y += dx[d / 2];
+				x += dx[d / 2], y += dy[d / 2];
 				if (!InMap(x, y) || mark[x][y][d]) break;
 
 				now_map[x][y].col[(d / 2 + 2) % 4].add(col);
 				if (now_map[x][y].isMirror()) {
 					d = Reflection(d, now_map[x][y].dir, 0);
+					if (d < 0) break;
 				} else
 					if (now_map[x][y].isReceive() || now_map[x][y].isSender()) break;
 			}
@@ -144,8 +161,8 @@ void CHC_GameSystem::Refresh()
 
 void CHC_GameSystem::xyToBoardxy(float fx, float fy, int & x, int &y)
 {
-	x = floor(fx);
-	y = floor(fy);
+	x = floor(fx + 0.5f);
+	y = floor(fy + 0.5f);
 }
 
 void CHC_GameSystem::ClickMouse(CHC_Line & L, int State)
@@ -153,8 +170,10 @@ void CHC_GameSystem::ClickMouse(CHC_Line & L, int State)
 	CHC_Vector3 P;
 	if (!L.istYequal0(P)) return;
 	if (State == MOUSE_OTHER_STATE) return;
-	int x, y;
+	int x, y; 
 	xyToBoardxy(P[0], P[2], x, y);
+	
+	printf("%lf %lf %d %d\n", P[0], P[2], x, y);
 	if (!InMap(x, y)) return;
 	if (State == 8) {
 		// Delete

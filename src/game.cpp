@@ -13,11 +13,17 @@
 #include "CHC_Laser.h"
 #include <vector>
 
+HWND		hWnd = NULL;		
 CHC_GameSystem GameSystem;		//Game System
 CHC_Camera camera3P;			// 3rd person camera
 CHC_Skybox SkyBox;
 GLuint floor_texture[1];
 
+CHC_Mirror	DrawMirror;
+CHC_Laser	DrawLaser;
+
+extern void MakeLine(int x, int y, CHC_Line & LL);
+extern void MakeLine(int x, int y);
 extern void KeyOperations();
 extern void keySpecialPressed(int, int, int);
 extern void keySpecialUp(int, int, int);
@@ -27,6 +33,9 @@ extern void Mouse(int, int, int, int);
 extern void MouseMove(int, int);
 extern bool keySpecialStates[KEY_NUM];
 extern bool keyStates[KEY_NUM];
+extern int	MouseState;
+extern int	MouseLastX;
+extern int  MouseLastY;
 
 //positions of the cubes
 const int maxnCube = 20;
@@ -35,18 +44,47 @@ struct gCube
 	float x, y, z;
 } Cp[maxnCube];
 
-vector <CHC_Line> pick_L;
+vector <CHC_Line> pick_L, PP;
+CHC_Line	MouseIn;
 
 /* Object */
-vector<CHC_Laser> Lasers;
-vector<CHC_Mirror> Mirrors;
+vector <CHC_Laser>	Lasers;
+vector <CHC_Mirror>	Mirrors;
+
+void DrawVirtualMirror()
+{
+	static POINT lastMouse = {0,0};
+    GetCursorPos(&lastMouse);
+	ScreenToClient(hWnd, &lastMouse);
+	MakeLine(lastMouse.x, lastMouse.y, MouseIn);
+	CHC_Vector3 P;
+	if (MouseIn.istYequal0(P)) {
+		int x = floor(P[0] + MOUSEBIAS), y = floor(P[2] + MOUSEBIAS);
+		if (MouseState < 8 && GameSystem.InMap(x, y) && GameSystem.now_map[x][y].isBlank()) {
+			DrawMirror.Set_Direction(MouseState);
+			DrawMirror.Set_Position(x, y);
+			DrawMirror.Draw();
+		}
+	}
+}
+
+void DealClick()
+{
+	unsigned int num_L = pick_L.size();
+	for (unsigned int i = 0; i != num_L; i++) {
+		GameSystem.ClickMouse(pick_L[i], MouseState);
+		printf("%d\n", MouseState);
+		PP.push_back(pick_L[i]);
+	}
+	if (num_L > 0) pick_L.clear();
+}
 
 void DrawLine()
 {
-	unsigned int num_L = pick_L.size();
+	unsigned int num_L = PP.size();
 	CHC_Vector3 P;
 	for (unsigned int i = 0; i != num_L; i++) {
-		if ( pick_L[i].istYequal0(P) ) {
+		if ( PP[i].istYequal0(P) ) {
 			glPushMatrix();
 				glTranslated(P[0], 0.025, P[2]);
 				glColor3f(0.0, 0.0, 1.0);
@@ -71,6 +109,12 @@ void Display()
 	
 	SkyBox.renderSkybox();
 
+    GLfloat lightPosition[] = {0.0f, 2.0f, 1.0f, 1.0f};
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHTING);
+
+
 	glColor4f(1, 1, 1, 1);
 	glBindTexture(GL_TEXTURE_2D, floor_texture[1]);
 	
@@ -86,11 +130,23 @@ void Display()
 		}
 	// all.print();
 	
-	DrawLine();
-	
+	//DrawLine();
+
+	DealClick();
+	//DrawLine();
+
+	GameSystem.Refresh();
+
+	DrawVirtualMirror();
+	/*
 	for (unsigned i = 0; i < Mirrors.size(); i++) Mirrors[i].Draw();
-	for (unsigned i = 0; i < Lasers.size(); i++) Lasers[i].Draw();
 	
+	glEnable(GL_BLEND);
+	glDepthMask(GL_FALSE);
+	for (unsigned i = 0; i < Lasers.size(); i++) Lasers[i].Draw();
+	glDepthMask(GL_TRUE);
+	*/
+
 	glutSwapBuffers(); 
 }
 
@@ -142,6 +198,9 @@ void Init_Logic()
 	Mirrors.push_back(CHC_Mirror(2, 2, 1));
 	Mirrors.push_back(CHC_Mirror(1, 1, 2));
 	pick_L.clear();
+
+	MouseState = 0;
+	GameSystem.LoadMap("Reflection\\data\\map\\map0.in");
 }
 
 void Init_GLUT(int argc, char** argv)
@@ -150,7 +209,8 @@ void Init_GLUT(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);		// set displaymode
 	glutInitWindowSize(Window_W, Window_H);				//窗口大小
     glutInitWindowPosition(100, 100);					//窗口位置
-    glutCreateWindow("Hello World");					//创建一个标题为hello的窗口
+    glutCreateWindow(GameWindowName);					//创建一个标题为hello的窗口
+	hWnd = FindWindow(NULL,GameWindowName);
 }
 
 void Init_GL() 
