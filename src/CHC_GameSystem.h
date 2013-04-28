@@ -4,6 +4,9 @@
 #include "CHC_Constants.h"
 #include "CHC_Vector3.h"
 #include "CHC_Line.h"
+#include "CHC_Color.h"
+#include "CHC_Mirror.h"
+#include "CHC_Laser.h"
 
 #define MAP_WIDTH	16
 #define MAP_HEIGHT	16
@@ -23,42 +26,24 @@ static const int DirChange[1][4][8] =
 	}
 };
 
-class CHC_Color
-{
-public:
-	int r, g, b;
-	void setColor(int _r, int _g, int _b) {
-		r = _r, g = _g, b = _b;
-	}
-	void setColor(const CHC_Color & col) {
-		r = col.r, g = col.g, b = col. g;
-	}
-	void operator=(const CHC_Color & c) {
-		r = c.r, g = c.g, b = c.g;
-	}
-	void add(const CHC_Color & c) {
-		r |= c.r, g |= c.g, b |= c.b;
-	}
-	bool operator==(const CHC_Color & c) {
-		return r == c.r && g == c.g && b == c.b;
-	}
-};
 
 class CHC_Map_Info
 {
 public:
 	int obj;					// object id
 	int dir;					// direction
-	CHC_Color col;				// need when obj is Sender or Receive 
+	CHC_Color col[4];				// need when obj is Sender or Receive 
 
 	void operator=(const CHC_Map_Info & m) {
 		obj = m.obj;
 		dir = m.dir;
-		col = m.col;
+		for (int i = 0; i != 4; i++)
+			col[i] = m.col[i];
 	}
 	void setBlank() {
 		obj = BLANK_ID;
-		col.setColor(0, 0, 0);
+		for (int i = 0; i != 4; i++)
+			col[i].setColor(0, 0, 0);
 	}
 	bool isMirror() {
 		return obj == MIRROR_ID;
@@ -90,6 +75,8 @@ public:
 	int Reflection(int inDir, int mDir, int mirrorType = 0);
 	void ClickMouse(CHC_Line & L, int State);
 	void xyToBoardxy(float fx, float fy, int & x, int &y);
+
+	void GameDraw();
 	//static double intersectionPlane(CHC_Vector3 x0, CHC_Vector3 n, CHC_Vector3 x1, CHC_Vector3 n1);
 
 private:

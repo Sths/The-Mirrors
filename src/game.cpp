@@ -92,13 +92,15 @@ void Display()
 		}
 	// all.print();
 	
-	for (unsigned i = 0; i < Mirrors.size(); i++) Mirrors[i].Draw();
 	DrawLine();
-
+	/*
+	for (unsigned i = 0; i < Mirrors.size(); i++) Mirrors[i].Draw();
+	
 	glEnable(GL_BLEND);
 	glDepthMask(GL_FALSE);
 	for (unsigned i = 0; i < Lasers.size(); i++) Lasers[i].Draw();
 	glDepthMask(GL_TRUE);
+	*/
 
 	glutSwapBuffers(); 
 }
@@ -176,16 +178,6 @@ void Init_GL()
 	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 		
-	//glEnable(GL_LIGHT0);
-	//glEnable(GL_LIGHTING);
-	/*
-	GLfloat lightPosition[] = {0.0f, -1.0f, 0.0f, 0.0f};
-	glLightfv(GL_LIGHT1, GL_POSITION, lightPosition);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, white*0.2f);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, white*0.2f);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, black);
-	*/
-	//glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);						// Enable Material Coloring
 	
