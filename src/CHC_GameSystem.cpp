@@ -98,11 +98,19 @@ void CHC_GameSystem::GameDraw()
 				glPopMatrix();
 			} else 
 			if (now_map[i][j].isReceive()) {
-				glPushMatrix();
-					glTranslated((float)i, 0.5, (float)j);
-					glColor3f(1.0, 0.0, 0.0);
-					glutSolidCube(1);
-				glPopMatrix();
+				if (now_map[i][j].col[now_map[i][j].dir / 2] >= ori_map[i][j].col[now_map[i][j].dir / 2]) {
+					glPushMatrix();
+						glTranslated((float)i, 0.5, (float)j);
+						glColor3f(0.0, 1.0, 0.0);
+						glutSolidCube(1);
+					glPopMatrix();
+				} else {
+					glPushMatrix();
+						glTranslated((float)i, 0.5, (float)j);
+						glColor3f(1.0, 0.0, 0.0);
+						glutSolidCube(1);
+					glPopMatrix();
+				}
 			}
 		}
 	for (int i = 0; i != map_w; i++)

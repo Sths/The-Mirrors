@@ -13,10 +13,10 @@ public:
 		r = _r, g = _g, b = _b;
 	}
 	void setColor(const CHC_Color & col) {
-		r = col.r, g = col.g, b = col. g;
+		r = col.r, g = col.g, b = col.b;
 	}
 	void operator=(const CHC_Color & c) {
-		r = c.r, g = c.g, b = c.g;
+		r = c.r, g = c.g, b = c.b;
 	}
 	void add(const CHC_Color & c) {
 		r |= c.r, g |= c.g, b |= c.b;
@@ -26,6 +26,9 @@ public:
 	}
 	bool operator!=(const CHC_Color & c) {
 		return !((*this)==c);
+	}
+	bool operator>=(const CHC_Color & c) {
+		return r >= c.r && g >= c.g && b >= c.b;
 	}
 	bool notZero() {
 		return (r|g|b)>0;
