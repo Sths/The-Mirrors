@@ -1,5 +1,7 @@
 #include "CHC_Laser.h"
 
+int CHC_Laser::Loaded = false;
+GLuint CHC_Laser::texture = 0;
 
 void CHC_Laser::set(int x0, int y0, int x1, int y1, int _color) {
 	radius = 0.05;
@@ -16,13 +18,15 @@ CHC_Laser::CHC_Laser(int x0, int y0, int x1, int y1, int _color, GLfloat _radius
 }
 
 void CHC_Laser::Draw() {
-	GLuint texture;
-	LoadGLTextures(texture, "Reflection\\data\\Laser.bmp");
+	if (!Loaded) {
+		LoadGLTextures(texture, "Reflection\\data\\Laser.bmp");
+		Loaded = true;
+	}
 	glBindTexture(GL_TEXTURE_2D, texture);
-	
+
 	glEnable(GL_BLEND);
 	glDepthMask(GL_FALSE);
-	
+
 	glColor4f(SEP(color), 0.5);
 	glBegin(GL_QUADS);
 		for (GLfloat i = 0; i < acos(-1.0); i += 0.5) {
@@ -38,6 +42,6 @@ void CHC_Laser::Draw() {
 			glTexCoord2f(0.0f, 1.0f); glVertex3f(SEP(t + temp));
 		}
 	glEnd();
-
+	glDisable(GL_BLEND);
 	glDepthMask(GL_TRUE);
 }

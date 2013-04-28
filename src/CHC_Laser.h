@@ -12,12 +12,14 @@ using namespace std;
 
 class CHC_Laser {
 public:
-	CHC_Laser() {};
+	static int Loaded;
+	static GLuint texture;
 	CHC_Vector3 s, t;
 	CHC_Vector3 color;
 	GLfloat radius;
 	GLfloat timer;
 	vector<GLfloat> Points;
+	CHC_Laser() {};
 	CHC_Laser(int x0, int y0, int x1, int y1, int _color, GLfloat _radius);
 	void set(int x0, int y0, int x1, int y1, int _color);
 	void Draw();
