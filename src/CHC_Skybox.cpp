@@ -93,6 +93,7 @@ void CHC_Skybox::renderSkybox()
         glTexCoord2f(1, 1); glVertex3f(  SkyBoxSize, -SkyBoxSize, -SkyBoxSize );
     glEnd();
 
+	glEnable(GL_LIGHTING);
 	glPopAttrib();
 	glPopMatrix();
 }

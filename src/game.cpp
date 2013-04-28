@@ -100,11 +100,10 @@ void Display()
 
 	glDisable(GL_BLEND);
 	glDepthMask(GL_TRUE);
-
+	
 	KeyOperations();
 	
 	glLoadIdentity();
-	
 	camera3P.setLook();
 	
 	SkyBox.renderSkybox();
@@ -230,7 +229,7 @@ void Init_GL()
 	
 	GLfloat LightAmbient[]= { 1.0f, 1.0f, 1.0f, 1.0f }; 
 	GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
-    GLfloat lightPosition[] = {-3.0f, 12.0f, -3.0f, 1.0f};
+    GLfloat lightPosition[] = {1.0f, 1.0f, 0.5f, 1.0f};
 	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);	
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);	
     glLightfv(GL_LIGHT1, GL_POSITION, lightPosition);
