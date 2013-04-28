@@ -1,6 +1,7 @@
 #ifndef CHC_LASER_H
 #define CHC_LASER_H
 
+#include <Windows.h>
 #include "glut.h"
 #include "CHC_Vector3.h"
 #include "CHC_Constants.h"

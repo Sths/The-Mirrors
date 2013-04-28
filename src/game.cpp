@@ -1,5 +1,5 @@
-#pragma comment(lib,"opengl32.lib")
-#pragma comment(lib,"glu32.lib")
+#pragma comment(lib, "opengl32.lib")
+#pragma comment(lib, "glu32.lib")
 
 #include "CHC_Vector3.h"
 #include "CHC_Camera.h"
@@ -9,10 +9,12 @@
 #include "CHC_Skybox.h"
 #include "CHC_Texture.h"
 #include "CHC_Line.h"
+#include "CHC_GameSystem.h"
 #include "CHC_Laser.h"
 #include <vector>
 
-CHC_Camera camera3P;	// 3rd person camera
+CHC_GameSystem GameSystem;		//Game System
+CHC_Camera camera3P;			// 3rd person camera
 CHC_Skybox SkyBox;
 GLuint floor_texture[1];
 
@@ -35,6 +37,10 @@ struct gCube
 
 vector <CHC_Line> pick_L;
 
+/* Object */
+vector<CHC_Laser> Lasers;
+vector<CHC_Mirror> Mirrors;
+
 void DrawLine()
 {
 	unsigned int num_L = pick_L.size();
@@ -43,16 +49,12 @@ void DrawLine()
 		if ( pick_L[i].istYequal0(P) ) {
 			glPushMatrix();
 				glTranslated(P[0], 0.025, P[2]);
-				glColor4f(0.0, 0.0, 1.0, 1.0);
+				glColor3f(0.0, 0.0, 1.0);
 				glutSolidCube(0.05);
 			glPopMatrix();
 		}
 	}
-	//cout << num_L << endl;
 }
-
-vector<CHC_Laser> Lasers;
-vector<CHC_Mirror> Mirrors;
 
 void Display()
 {
