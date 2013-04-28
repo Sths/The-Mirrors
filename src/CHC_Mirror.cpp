@@ -1,6 +1,7 @@
 #include "CHC_Mirror.h"
+#include <vector>
 
-extern vector<GLuint> FileTextures;
+extern vector <GLuint> FileTextures;
 
 CHC_Mirror::CHC_Mirror(int x, int y, int dir) {
 	Position = Grid(x, y);
