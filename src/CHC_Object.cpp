@@ -2,6 +2,7 @@
 
 bool CHC_Object::Loaded = false;
 GLuint CHC_Object::ViewList = 0;
+int CHC_Object::TextureIndex = 0;
 
 CHC_Object::CHC_Object(CHC_Vector3 _Position, CHC_Vector3 _Normal, string _ModelPath) {
 	Position = _Position;

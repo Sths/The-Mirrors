@@ -19,6 +19,7 @@ class CHC_Object {
 protected:
 	static bool Loaded; // 是否已经加载输入并生成了显示列表
 	static GLuint ViewList;
+	static int TextureIndex;
 	CHC_Vector3 Position, Normal;
 	string ModelPath;
 public:
