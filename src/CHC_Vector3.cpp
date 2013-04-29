@@ -112,7 +112,7 @@ CHC_Vector3 CHC_Vector3::cross(const CHC_Vector3& ve) const
 				   v[0] * ve.v[1] - v[1] * ve.v[0]);
 }
 
-CHC_Vector3 CHC_Vector3::dot(const CHC_Vector3& ve) const
+float CHC_Vector3::dot(const CHC_Vector3& ve) const
 {
-	return CHC_Vector3(v[0] * ve[0], v[1] * ve[1], v[2] * ve[2]);
+	return v[0] * ve[0] + v[1] * ve[1] + v[2] * ve[2];
 }

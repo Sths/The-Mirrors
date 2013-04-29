@@ -41,7 +41,7 @@ const int Gridz = 1;
 #define MIRROR_TOOLBAR_X -2
 #define MIRROR_TOOLBAR_Y 5
 #define MIRROR_TOOLBAR_LEN_X 1
-#define MIRROR_TOOLBAR_LEN_Y 1
+#define MIRROR_TOOLBAR_LEN_Y 5
 #define START_MIRROR_STATE 2
 #define NUM_MIRROR_STATE 8
 

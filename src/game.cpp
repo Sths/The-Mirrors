@@ -68,7 +68,7 @@ void DrawVirtualMirror()
 		if (MouseIn.istYequal0(P)) {
 			int x = floor(P[0] + MOUSEBIAS), y = floor(P[2] + MOUSEBIAS);
 			if (PickMirrorState < 8) {
-				if (GameSystem.InMap(x, y) && GameSystem.now_map[x][y].isBlank()) {
+				if (GameSystem.InMap(x, y)) {
 					DrawMirror.Set_Direction(PickMirrorState);
 					DrawMirror.Set_Position(x, y);
 					DrawMirror.Draw();

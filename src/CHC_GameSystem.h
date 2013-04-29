@@ -14,6 +14,7 @@
 #define MIRROR_ID	1
 #define SENDER_ID	2
 #define RECEIVER_ID	3
+#define MAX_NUM_MS	
 
 static const int dx[4] = {0, 1, 0, -1};
 static const int dy[4] = {1, 0, -1, 0};
@@ -26,17 +27,26 @@ static const int DirChange[1][4][8] =
 	}
 };
 
-static const int  GetNormal[4][3]=
+/* Mirror */
+/* Mirror */
+static const float  GetNormal[4][3]=
 {{1,0,0},
- {0.5,0,0.5},
+{0.5,0,0.5},
  {0,0,1},
-{-0.5,0,0.5}};
+ {-0.5,0,0.5}};
 
-static const int PoChange[4][4][3] =
+/*static const float PoChange[4][4][3] =
 {{{0.5,0,0},{0.5,0,1},{0.5,1,1},{0.5,1,0}},
 {{1,0,0},{0,0,1},{0,1,1},{1,1,0}},
 {{1,0,0.5},{0,0,0.5},{0,1,0.5},{1,1,0.5}},
-{{1,0,1},{0,0,0},{0,1,0},{1,1,1}}};
+{{1,0,1},{0,0,0},{0,1,0},{1,1,1}}
+};*/
+static const float PoChange[4][4][3] =
+{{{0,0,-0.5},{0,0,0.5},{0,1,0.5},{0,1,-0.5}},
+{{0.5,0,-0.5},{-0.5,0,0.5},{-0.5,1,0.5},{0.5,1,-0.5}},
+{{0.5,0,0},{-0.5,0,0},{-0.5,1,0},{0.5,1,0}},
+{{0.5,0,0.5},{-0.5,0,-0.5},{-0.5,1,-0.5},{0.5,1,0.5}}
+};
 
 class CHC_Mir_Info
 {
@@ -45,16 +55,18 @@ public :
 	CHC_Mir_Info(){};
 	CHC_Mir_Info(int dir,int x_,int y_){
 		for (int i = 0 ; i < 4 ; i++){
-			x[i] = CHC_Vector3(PoChange[dir][i][0] + x_, PoChange[dir][i][1],PoChange[dir][i][2] + y_);
+			x[i] = CHC_Vector3(PoChange[dir % 4][i][0] + x_, PoChange[dir % 4][i][1],PoChange[dir % 4][i][2] + y_);
 		}
-		n = CHC_Vector3(GetNormal[dir][0],GetNormal[dir][1],GetNormal[dir][2]);
+		n = CHC_Vector3(GetNormal[dir % 4][0],GetNormal[dir % 4][1],GetNormal[dir % 4][2]);
 	}
 };
+
 
 class CHC_Map_Info
 {
 public:
 	int obj;					// object id
+	int mirror_s;				// mirror sort
 	int dir;					// direction
 	CHC_Color col[4];				// need when obj is Sender or Receive 
 
@@ -81,6 +93,7 @@ public:
 	bool isReceive() {
 		return obj == RECEIVER_ID;
 	}
+	void getnearest(CHC_Line L , CHC_Vector3 & p) ;
 };
 
 class CHC_GameSystem
@@ -96,6 +109,7 @@ public:
 	void GameDraw();											// Draw Game
 
 	/* game simulation */
+	void RefreshBackTrace(int x, int y, int d, CHC_Color & col);
 	int  InToolBar(int x, int y);								// check in toolbar, if in return the mirror sort, otherwise return -1
 	bool InMap(int x, int y);									// check (x,y) is in Board
 	int Reflection(int inDir, int mDir, int mirrorType = 0);	// Game simulate when reflection
@@ -104,7 +118,7 @@ public:
 	
 	/* Game operation */
 	void Restart();												// restart the game
-	bool Insert_mirror(int x, int y, int d);					// Insert_mirror in (x,y), direction is d
+	bool Insert_mirror(int x, int y, int s, int d);					// Insert_mirror in (x,y), direction is d
 	bool Delete_mirror(int x, int y);							// Delete_mirror in (x,y)
 	
 	/* Interation */
@@ -115,8 +129,9 @@ public:
 	void ClickMouseUp(CHC_Line & L);
 
 	/* */
-	void getnearest(CHC_Line L , CHC_Vector3 & p) ;
-
+	void getnearest(CHC_Line & L ,CHC_Vector3 & p);
+	
+	static void CHC_GameSystem::RefreshBackTrace();
 private:
 	bool win_flag;
 	int map_w, map_h;					// map width, height

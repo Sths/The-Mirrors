@@ -174,7 +174,8 @@ void Mouse(int button, int state, int x, int y) {
 			ClickLeft_X = x, ClickLeft_Y = y;
 			MakeLine(x, y);
 			MouseLeftDown = true;
-		} else {
+		} else 
+		if (state == GLUT_UP) {
 			MouseLeftDown = false;
 			if (MousePickMirror >= 0) {
 				int x, y;

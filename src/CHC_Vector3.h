@@ -45,7 +45,7 @@ public:
 	CHC_Vector3 operator/(GLfloat k) const;
 	CHC_Vector3 operator-() const;
 	CHC_Vector3 cross(const CHC_Vector3& ve) const;
-	CHC_Vector3 dot(const CHC_Vector3& ve) const;
+	float dot(const CHC_Vector3& ve) const;
 
 	static const CHC_Vector3 ZERO;
 	static const CHC_Vector3 X_AXIS;
