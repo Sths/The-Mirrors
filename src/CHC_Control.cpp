@@ -138,7 +138,7 @@ void KeyOperations()
 	if (keyStates['r']) {
 		camera3P.worldUp(moveSensity);
 	}
-	if (keyStates['d']) {
+	if (keyStates['f']) {
 		camera3P.worldUp(-moveSensity);
 	}
 	if (keySpecialStates[GLUT_KEY_F5]) {

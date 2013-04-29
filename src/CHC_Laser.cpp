@@ -4,13 +4,13 @@ int CHC_Laser::Loaded = false;
 GLuint CHC_Laser::texture = 0;
 
 void CHC_Laser::set(int x0, int y0, int x1, int y1, int _color) {
-	radius = 0.05;
+	radius = DefaultRadius;
 	s = Grid(x0, y0) + CHC_Vector3(0, Gridy / 2.0, 0);
 	t = Grid(x1, y1) + CHC_Vector3(0, Gridy / 2.0, 0);
 	color = Color2Vector(_color);
 }
 
-CHC_Laser::CHC_Laser(int x0, int y0, int x1, int y1, int _color, GLfloat _radius = 0.05) {
+CHC_Laser::CHC_Laser(int x0, int y0, int x1, int y1, int _color, GLfloat _radius = DefaultRadius) {
 	s = Grid(x0, y0) + CHC_Vector3(0, Gridy / 2.0, 0);
 	t = Grid(x1, y1) + CHC_Vector3(0, Gridy / 2.0, 0);
 	color = Color2Vector(_color);

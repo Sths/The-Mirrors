@@ -20,7 +20,7 @@ CHC_Skybox SkyBox;
 
 /* Texture */
 GLuint floor_texture[10];
-vector <GLuint> FileTextures;
+vector<GLuint> FileTextures;
 
 CHC_Mirror	DrawMirror;
 CHC_Laser	DrawLaser;
@@ -119,7 +119,6 @@ void Display()
 
 	glColor4f(1, 1, 1, 1);
 	glBindTexture(GL_TEXTURE_2D, floor_texture[1]);
-	
 	for (int i = 0; i < 17; i++)
 		for (int j = 0; j < 17; j++) {
 			glBegin(GL_QUADS);
@@ -241,7 +240,8 @@ void Init_GL()
 	glEnable(GL_COLOR_MATERIAL);						// Enable Material Coloring
 	
 	LoadGLTextures(floor_texture[0], "Reflection\\data\\face.bmp");
-	LoadGLTextures(floor_texture[1], "Reflection\\data\\woodfloor.bmp");
+	BuildTexture_new(floor_texture[1], "Reflection\\data\\ABC.jpg"); 
+	//LoadGLTextures(floor_texture[1], "Reflection\\data\\ABC.bmp");
 	SkyBox.setSkyTexture();
 	
 	ifstream Fin("Reflection\\data\\LoadList.txt");

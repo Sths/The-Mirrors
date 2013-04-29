@@ -10,6 +10,8 @@
 #include <iostream>
 using namespace std;
 
+#define DefaultRadius 0.2
+
 class CHC_Laser {
 public:
 	static int Loaded;

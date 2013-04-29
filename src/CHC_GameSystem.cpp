@@ -164,6 +164,13 @@ void CHC_GameSystem::Refresh()
 	
 	if (win_flag) {
 		/* Win */
+		/*
+		glPushMatrix();
+			glTranslated((float)map_w/2, 4, (float)map_h/2);
+			glColor3f(0.1, 0.3, 0.3);
+			glutSolidCube(map_w);
+		glPopMatrix();
+		*/
 	}
 }
 
