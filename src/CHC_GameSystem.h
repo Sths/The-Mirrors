@@ -14,7 +14,7 @@
 #define MIRROR_ID	1
 #define SENDER_ID	2
 #define RECEIVER_ID	3
-#define MAX_NUM_MS	
+#define NUM_MIRROR_SORT	MIRROR_TOOLBAR_LEN_Y
 
 static const int dx[4] = {0, 1, 0, -1};
 static const int dy[4] = {1, 0, -1, 0};
@@ -135,7 +135,7 @@ public:
 private:
 	bool win_flag;
 	int map_w, map_h;					// map width, height
-	int num_mirror, now_nm;				// number of mirror
+	int num_mirror[NUM_MIRROR_SORT], now_nm[NUM_MIRROR_SORT];				// number of mirror
 	int num_sender, num_receiver;		// number of sender & receiver
 	int SelectX, SelectY;
 };

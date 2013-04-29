@@ -10,7 +10,9 @@ static bool mark[MAP_WIDTH][MAP_HEIGHT][8];		//hash
 
 void CHC_GameSystem::Restart()
 {
-	now_nm = num_mirror;
+	for (int i = 0; i != NUM_MIRROR_SORT; i++) {
+		now_nm[i] = num_mirror[i];
+	}
 	for (int i = 0; i != map_w; i++)
 		for (int j = 0; j != map_h; j++)
 			now_map[i][j] = ori_map[i][j];
@@ -41,8 +43,9 @@ bool CHC_GameSystem::LoadMap(char * filename) {
 		fscanf(fin, "%d%d%d", &r, &g, &b);
 		ori_map[x][y].col[0].setColor(r, g, b);
 	}
-	fscanf(fin, "%d", &num_mirror);
-
+	for (int i = 0; i != NUM_MIRROR_SORT; i++) {
+		fscanf(fin, "%d", &num_mirror[i]);
+	}
 	Restart();
 
 	return true;
@@ -65,11 +68,11 @@ bool CHC_GameSystem::InMap(int x, int y)
 
 bool CHC_GameSystem::Insert_mirror(int x, int y, int sort, int d)
 {
-	if (!InMap(x, y) || now_nm == 0 || !now_map[x][y].isBlank()) return false;
+	if (!InMap(x, y) || now_nm[sort] == 0 || !now_map[x][y].isBlank()) return false;
 	now_map[x][y].obj = MIRROR_ID;
 	now_map[x][y].mirror_s = sort;
 	now_map[x][y].dir = d;
-	--now_nm;
+	--now_nm[sort];
 	return true;
 }
 
@@ -77,7 +80,7 @@ bool CHC_GameSystem::Delete_mirror(int x, int y)
 {
 	if (!InMap(x, y) || !now_map[x][y].isMirror()) return false;
 	now_map[x][y].obj = BLANK_ID;
-	++now_nm;
+	++now_nm[now_map[x][y].mirror_s];
 	return true;
 }
 
@@ -98,10 +101,12 @@ int CHC_GameSystem::Reflection(int inDir, int mDir, int mirrorType)
 /* Load Map from file */
 void CHC_GameSystem::DrawMirrorToolbar()
 {
-	if (now_nm > 0) {
-		DrawMirror.Set_Direction(START_MIRROR_STATE);
-		DrawMirror.Set_Position(MIRROR_TOOLBAR_X, MIRROR_TOOLBAR_Y);
-		DrawMirror.Draw();
+	for (int i = 0; i != NUM_MIRROR_SORT; i++) {
+		if (now_nm[i] > 0) {
+			DrawMirror.Set_Direction(START_MIRROR_STATE);
+			DrawMirror.Set_Position(MIRROR_TOOLBAR_X, i + MIRROR_TOOLBAR_Y);
+			DrawMirror.Draw();
+		}
 	}
 }
 
@@ -265,7 +270,7 @@ void CHC_GameSystem::ClickMouse(CHC_Line & L)
 	
 	SelectX = 255, SelectY = 255;
 	if (InToolBar(x, y) >= 0) {
-		if (MouseLeftDown && now_nm > 0) {
+		if (MouseLeftDown && now_nm[y - MIRROR_TOOLBAR_Y] > 0) {
 			SelectX = x, SelectY = y;
 			MousePickMirror = y - MIRROR_TOOLBAR_Y;
 			PickMirrorState = START_MIRROR_STATE;
