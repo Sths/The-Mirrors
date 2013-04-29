@@ -34,11 +34,15 @@ extern void keyPressed(unsigned char, int, int);
 extern void keyUp(unsigned char, int, int);
 extern void Mouse(int, int, int, int);
 extern void MouseMove(int, int);
+extern void CHC_GetCursorPos(int & x, int & y);
+
 extern bool keySpecialStates[KEY_NUM];
 extern bool keyStates[KEY_NUM];
 extern int	MouseState;
 extern int	MouseLastX;
 extern int  MouseLastY;
+extern int  MousePickMirror;
+extern int  PickMirrorState;
 
 //positions of the cubes
 const int maxnCube = 20;
@@ -56,17 +60,25 @@ vector <CHC_Mirror>	Mirrors;
 
 void DrawVirtualMirror()
 {
-	static POINT lastMouse = {0,0};
-    GetCursorPos(&lastMouse);
-	ScreenToClient(hWnd, &lastMouse);
-	MakeLine(lastMouse.x, lastMouse.y, MouseIn);
-	CHC_Vector3 P;
-	if (MouseIn.istYequal0(P)) {
-		int x = floor(P[0] + MOUSEBIAS), y = floor(P[2] + MOUSEBIAS);
-		if (MouseState < 8 && GameSystem.InMap(x, y) && GameSystem.now_map[x][y].isBlank()) {
-			DrawMirror.Set_Direction(MouseState);
-			DrawMirror.Set_Position(x, y);
-			DrawMirror.Draw();
+	if (MousePickMirror >= 0) {
+		int lm_x, lm_y;
+		CHC_GetCursorPos(lm_x, lm_y);
+		MakeLine(lm_x, lm_y, MouseIn);
+		CHC_Vector3 P;
+		if (MouseIn.istYequal0(P)) {
+			int x = floor(P[0] + MOUSEBIAS), y = floor(P[2] + MOUSEBIAS);
+			if (PickMirrorState < 8) {
+				if (GameSystem.InMap(x, y) && GameSystem.now_map[x][y].isBlank()) {
+					DrawMirror.Set_Direction(PickMirrorState);
+					DrawMirror.Set_Position(x, y);
+					DrawMirror.Draw();
+				}
+				if (!GameSystem.InMap(x, y)) {
+					DrawMirror.Set_Direction(PickMirrorState);
+					DrawMirror.Set_Position(P[0] + MOUSEBIAS, P[2] + MOUSEBIAS);
+					DrawMirror.Draw();
+				}
+			}
 		}
 	}
 }
@@ -75,8 +87,7 @@ void DealClick()
 {
 	unsigned int num_L = pick_L.size();
 	for (unsigned int i = 0; i != num_L; i++) {
-		GameSystem.ClickMouse(pick_L[i], MouseState);
-		printf("%d\n", MouseState);
+		GameSystem.ClickMouse(pick_L[i]);
 		PP.push_back(pick_L[i]);
 	}
 	if (num_L > 0) pick_L.clear();
@@ -117,6 +128,7 @@ void Display()
 	glEnable(GL_LIGHTING);
 
 
+	/* Draw Board */
 	glColor4f(1, 1, 1, 1);
 	glBindTexture(GL_TEXTURE_2D, floor_texture[1]);
 	for (int i = 0; i < 17; i++)
@@ -129,24 +141,28 @@ void Display()
 			glEnd();
 			glPopMatrix();
 		}
-	// all.print();
-	
-	//DrawLine();
+
+	/* Draw Mirror toolbar */
+	glColor4f(1, 1, 1, 0.2);
+	glBindTexture(GL_TEXTURE_2D, floor_texture[1]);
+	for (int i = MIRROR_TOOLBAR_X; i - MIRROR_TOOLBAR_X < MIRROR_TOOLBAR_LEN_X; i++) {
+		for (int j = MIRROR_TOOLBAR_Y; j - MIRROR_TOOLBAR_Y < MIRROR_TOOLBAR_LEN_Y; j++) {
+			glBegin(GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f); glVertex3f((i - 0.5) * Gridx, 0, (j - 0.5) * Gridy);
+				glTexCoord2f(0.0f, 1.0f); glVertex3f((i - 0.5) * Gridx, 0, (j + 0.5) * Gridy);
+				glTexCoord2f(1.0f, 1.0f); glVertex3f((i + 0.5) * Gridx, 0, (j + 0.5) * Gridy);
+				glTexCoord2f(1.0f, 0.0f); glVertex3f((i + 0.5) * Gridx, 0, (j - 0.5) * Gridy);
+			glEnd();
+			glPopMatrix();
+		}
+	}
+
 
 	DealClick();
-	//DrawLine();
 
 	GameSystem.Refresh();
 
 	DrawVirtualMirror();
-	/*
-	for (unsigned i = 0; i < Mirrors.size(); i++) Mirrors[i].Draw();
-	
-	glEnable(GL_BLEND);
-	glDepthMask(GL_FALSE);
-	for (unsigned i = 0; i < Lasers.size(); i++) Lasers[i].Draw();
-	glDepthMask(GL_TRUE);
-	*/
 
 	glutSwapBuffers(); 
 }
@@ -200,6 +216,7 @@ void Init_Logic()
 	Mirrors.push_back(CHC_Mirror(1, 1, 2));
 	pick_L.clear();
 
+	MousePickMirror = -1;
 	MouseState = 0;
 	GameSystem.LoadMap("Reflection\\data\\map\\map0.in");
 }

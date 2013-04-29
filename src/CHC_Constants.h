@@ -38,6 +38,13 @@ const int Gridz = 1;
 #define MAP_SIZE_WIDTH 17
 #define MAP_SIZE_HEIGHT 17
 
+#define MIRROR_TOOLBAR_X -2
+#define MIRROR_TOOLBAR_Y 5
+#define MIRROR_TOOLBAR_LEN_X 1
+#define MIRROR_TOOLBAR_LEN_Y 1
+#define START_MIRROR_STATE 2
+#define NUM_MIRROR_STATE 8
+
 static char GameWindowName[] = "Reflection";
 #define MOUSEBIAS	0.5f
 

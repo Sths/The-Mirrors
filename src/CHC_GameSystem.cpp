@@ -1,8 +1,11 @@
 #include "CHC_GameSystem.h"
 #include <stdio.h>
 
+extern bool MouseLeftDown;
+extern int	MousePickMirror;
 extern CHC_Mirror	DrawMirror;
 extern CHC_Laser	DrawLaser;
+int  PickMirrorState;
 
 void CHC_GameSystem::Restart()
 {
@@ -10,9 +13,9 @@ void CHC_GameSystem::Restart()
 	for (int i = 0; i != map_w; i++)
 		for (int j = 0; j != map_h; j++)
 			now_map[i][j] = ori_map[i][j];
+	MousePickMirror = -1;
 }
 
-/* Load Map from file */
 bool CHC_GameSystem::LoadMap(char * filename) {
 	FILE * fin;
 	if ((fin = fopen(filename, "r")) == NULL) return false;
@@ -43,6 +46,16 @@ bool CHC_GameSystem::LoadMap(char * filename) {
 	Restart();
 
 	return true;
+}
+
+int  CHC_GameSystem::InToolBar(int x, int y)
+{
+	if (MIRROR_TOOLBAR_X <= x && x < MIRROR_TOOLBAR_X + MIRROR_TOOLBAR_LEN_X) {
+		if (MIRROR_TOOLBAR_Y <= y && y < MIRROR_TOOLBAR_Y + MIRROR_TOOLBAR_LEN_Y) {
+			return y - MIRROR_TOOLBAR_Y;
+		}
+	}
+	return -1;
 }
 
 bool CHC_GameSystem::InMap(int x, int y)
@@ -79,6 +92,16 @@ bool CHC_GameSystem::Win() {
 int CHC_GameSystem::Reflection(int inDir, int mDir, int mirrorType)
 {
 	return DirChange[mirrorType][inDir>>1][mDir];
+}
+
+/* Load Map from file */
+void CHC_GameSystem::DrawMirrorToolbar()
+{
+	if (now_nm > 0) {
+		DrawMirror.Set_Direction(START_MIRROR_STATE);
+		DrawMirror.Set_Position(MIRROR_TOOLBAR_X, MIRROR_TOOLBAR_Y);
+		DrawMirror.Draw();
+	}
 }
 
 void CHC_GameSystem::GameDraw()
@@ -124,6 +147,8 @@ void CHC_GameSystem::GameDraw()
 				DrawLaser.Draw();
 			}
 		}
+	
+	DrawMirrorToolbar();
 }
 
 void CHC_GameSystem::Refresh()
@@ -180,22 +205,53 @@ void CHC_GameSystem::xyToBoardxy(float fx, float fy, int & x, int &y)
 	y = floor(fy + 0.5f);
 }
 
-void CHC_GameSystem::ClickMouse(CHC_Line & L, int State)
+void CHC_GameSystem::KeyBoardDelete()
+{
+	if (InMap(SelectX, SelectY) && now_map[SelectX][SelectY].isMirror()) {
+		Delete_mirror(SelectX, SelectY);
+	}
+}
+
+void CHC_GameSystem::KeyBoardChangeState(int dx)
+{
+	if (MousePickMirror >= 0) {
+		PickMirrorState = (PickMirrorState + dx + NUM_MIRROR_STATE) % NUM_MIRROR_STATE;
+	} else 
+	if (InMap(SelectX, SelectY) && now_map[SelectX][SelectY].isMirror()) {
+		now_map[SelectX][SelectY].dir = (now_map[SelectX][SelectY].dir + dx + NUM_MIRROR_STATE) % NUM_MIRROR_STATE;
+	}
+}
+
+void CHC_GameSystem::ClickMouseUp(CHC_Line & L)
 {
 	CHC_Vector3 P;
 	if (!L.istYequal0(P)) return;
-	if (State == MOUSE_OTHER_STATE) return;
+		
 	int x, y; 
 	xyToBoardxy(P[0], P[2], x, y);
 	
-	printf("%lf %lf %d %d\n", P[0], P[2], x, y);
-	if (!InMap(x, y)) return;
-	if (State == 8) {
-		// Delete
-		Delete_mirror(x, y);
+	if (InMap(x, y)) Insert_mirror(x, y, PickMirrorState);
+}
+
+void CHC_GameSystem::ClickMouse(CHC_Line & L)
+{
+	CHC_Vector3 P;
+	if (!L.istYequal0(P)) return;
+		
+	int x, y; 
+	xyToBoardxy(P[0], P[2], x, y);
+	
+	SelectX = 255, SelectY = 255;
+	if (InToolBar(x, y) >= 0) {
+		if (MouseLeftDown && now_nm > 0) {
+			MousePickMirror = y - MIRROR_TOOLBAR_Y;
+			PickMirrorState = START_MIRROR_STATE;
+		} else MousePickMirror = -1;
 	} else
-	if (State >= 0 && State < 8) {
-		// Insert
-		Insert_mirror(x, y, State);
+	if (InMap(x, y)) {
+		if (now_map[x][y].isMirror()) {
+			SelectX = x, SelectY = y;
+			
+		}
 	}
 }

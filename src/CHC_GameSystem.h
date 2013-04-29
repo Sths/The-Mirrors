@@ -26,7 +26,6 @@ static const int DirChange[1][4][8] =
 	}
 };
 
-
 class CHC_Map_Info
 {
 public:
@@ -65,25 +64,37 @@ public:
 	CHC_Map_Info ori_map[MAP_WIDTH][MAP_HEIGHT];
 	CHC_Map_Info now_map[MAP_WIDTH][MAP_HEIGHT];
 
-	bool InMap(int x, int y);
-	bool LoadMap(char *filename);
-	void Restart();
-	void Refresh();
-	bool Win();
-	bool Insert_mirror(int x, int y, int d);
-	bool Delete_mirror(int x, int y);
-	int Reflection(int inDir, int mDir, int mirrorType = 0);
-	void ClickMouse(CHC_Line & L, int State);
-	void xyToBoardxy(float fx, float fy, int & x, int &y);
+	bool LoadMap(char *filename);								// Load Map
+	
+	/* Draw the board situation */
+	void DrawMirrorToolbar();									// Draw Mirror Toolbar
+	void GameDraw();											// Draw Game
 
-	void GameDraw();
-	//static double intersectionPlane(CHC_Vector3 x0, CHC_Vector3 n, CHC_Vector3 x1, CHC_Vector3 n1);
+	/* game simulation */
+	int  InToolBar(int x, int y);								// check in toolbar, if in return the mirror sort, otherwise return -1
+	bool InMap(int x, int y);									// check (x,y) is in Board
+	int Reflection(int inDir, int mDir, int mirrorType = 0);	// Game simulate when reflection
+	void Refresh();												// Fresh simulate
+	bool Win();													// check whether win
+	
+	/* Game operation */
+	void Restart();												// restart the game
+	bool Insert_mirror(int x, int y, int d);					// Insert_mirror in (x,y), direction is d
+	bool Delete_mirror(int x, int y);							// Delete_mirror in (x,y)
+	
+	/* Interation */
+	void xyToBoardxy(float fx, float fy, int & x, int &y);		// (fx, fy) change to board (x, y)
+	void ClickMouse(CHC_Line & L);					// Click Mouse
+	void KeyBoardDelete();
+	void KeyBoardChangeState(int dx);
+	void ClickMouseUp(CHC_Line & L);
 
 private:
 	bool win_flag;
-	int map_w, map_h;		// map width, height
+	int map_w, map_h;					// map width, height
 	int num_mirror, now_nm;				// number of mirror
 	int num_sender, num_receiver;		// number of sender & receiver
+	int SelectX, SelectY;
 };
 
 
