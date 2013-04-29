@@ -26,6 +26,31 @@ static const int DirChange[1][4][8] =
 	}
 };
 
+static const int  GetNormal[4][3]=
+{{1,0,0},
+ {0.5,0,0.5},
+ {0,0,1},
+{-0.5,0,0.5}};
+
+static const int PoChange[4][4][3] =
+{{{0.5,0,0},{0.5,0,1},{0.5,1,1},{0.5,1,0}},
+{{1,0,0},{0,0,1},{0,1,1},{1,1,0}},
+{{1,0,0.5},{0,0,0.5},{0,1,0.5},{1,1,0.5}},
+{{1,0,1},{0,0,0},{0,1,0},{1,1,1}}};
+
+class CHC_Mir_Info
+{
+public :
+	CHC_Vector3 x[4],n;
+	CHC_Mir_Info(){};
+	CHC_Mir_Info(int dir,int x_,int y_){
+		for (int i = 0 ; i < 4 ; i++){
+			x[i] = CHC_Vector3(PoChange[dir][i][0] + x_, PoChange[dir][i][1],PoChange[dir][i][2] + y_);
+		}
+		n = CHC_Vector3(GetNormal[dir][0],GetNormal[dir][1],GetNormal[dir][2]);
+	}
+};
+
 class CHC_Map_Info
 {
 public:
@@ -88,6 +113,9 @@ public:
 	void KeyBoardDelete();
 	void KeyBoardChangeState(int dx);
 	void ClickMouseUp(CHC_Line & L);
+
+	/* */
+	void getnearest(CHC_Line L , CHC_Vector3 & p) ;
 
 private:
 	bool win_flag;

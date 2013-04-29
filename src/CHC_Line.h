@@ -11,6 +11,8 @@ public:
 
 	CHC_Vector3 operator[](unsigned int i);			// [0]: S,  [1]: T
 	BOOL istYequal0(CHC_Vector3 & P);				// intersection with Y = 0 Plane
+	BOOL isitersectionplane(CHC_Vector3 p1, CHC_Vector3 n, CHC_Vector3 & P) ; // intersection with plane defined by n & p1.
+	BOOL isonmirror(CHC_Vector3 p1, CHC_Vector3 x1, CHC_Vector3 x2,CHC_Vector3 x3, CHC_Vector3 x4); // check if the intersection point p1 is on the mirror defined by x1 & x2 & x3 & x4.
 
 private:
 	CHC_Vector3 S, T;
