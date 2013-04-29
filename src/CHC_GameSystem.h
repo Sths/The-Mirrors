@@ -131,6 +131,9 @@ public:
 	/* */
 	void getnearest(CHC_Line & L ,CHC_Vector3 & p);
 	
+	void setLevel(int Lv);
+	void NextLevel();
+
 	static void CHC_GameSystem::RefreshBackTrace();
 private:
 	bool win_flag;
@@ -138,6 +141,7 @@ private:
 	int num_mirror[NUM_MIRROR_SORT], now_nm[NUM_MIRROR_SORT];				// number of mirror
 	int num_sender, num_receiver;		// number of sender & receiver
 	int SelectX, SelectY;
+	int nowLevel;
 };
 
 

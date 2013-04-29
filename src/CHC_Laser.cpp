@@ -22,6 +22,7 @@ void CHC_Laser::Draw() {
 		LoadGLTextures(texture, "Reflection\\data\\Laser.bmp");
 		Loaded = true;
 	}
+	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glEnable(GL_BLEND);
@@ -44,4 +45,6 @@ void CHC_Laser::Draw() {
 	glEnd();
 	glDisable(GL_BLEND);
 	glDepthMask(GL_TRUE);
+	
+	glPopAttrib();
 }

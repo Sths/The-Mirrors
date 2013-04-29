@@ -10,8 +10,8 @@ const double pi = 3.1415926;
 
 #define MOUSE_OTHER_STATE	255
 
-#define moveSensity 0.23		// 移动单位距离
-#define RotateSensity 0.02		// 旋转单位角度
+#define moveSensity 0.20		// 移动单位距离
+#define RotateSensity 0.03		// 旋转单位角度
 #define MouseSensity 500		// 鼠标密度，越大越慢
 
 #define P_FOVY 45.0				// Perspective fory

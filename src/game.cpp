@@ -13,6 +13,20 @@
 #include "CHC_Laser.h"
 #include <vector>
 
+GLfloat LightGlobalAmbient[] = {0.3,0.3,0.3,1.0};
+
+GLfloat Light0Ambient[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat Light0Diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat Light0Specular[] = { 0.8f, 0.8f, 0.8f, 1.0f};
+GLfloat Light0Position[] = { 4.0f, 1.0f, 4.0f, 0.3f };
+
+/*
+GLfloat Light1Ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
+GLfloat Light1Diffuse[]  = { 0.2f, 0.8f, 0.1f, 1.0f };
+GLfloat Light1Specular[] = { 0.0f, 0.5f, 0.0f, 1.0f};
+GLfloat Light1Position[] = { 5.0f, 15.0f, 5.0f, 1.0f };
+GLfloat Light1Direction[] = { 1.0f, -1.0f, 1.0f};
+*/
 HWND		hWnd = NULL;		
 CHC_GameSystem GameSystem;		//Game System
 CHC_Camera camera3P;			// 3rd person camera
@@ -21,6 +35,8 @@ CHC_Skybox SkyBox;
 /* Texture */
 GLuint floor_texture[10];
 vector<GLuint> FileTextures;
+GLuint WhiteTexture;
+GLuint BlackTexture;
 
 CHC_Mirror	DrawMirror;
 CHC_Laser	DrawLaser;
@@ -117,16 +133,19 @@ void Display()
 	
 	KeyOperations();
 	
+	if (GameSystem.Win()) {
+		if (MessageBox(NULL, "Congratulations! Let us go to next level!", "You Win", MB_OKCANCEL) == IDOK) {
+			GameSystem.NextLevel();
+		} else {
+			GameSystem.Restart();
+			return;
+		}
+	}
 	glLoadIdentity();
+
 	camera3P.setLook();
 	
 	SkyBox.renderSkybox();
-
-    GLfloat lightPosition[] = {0.0f, 2.0f, 1.0f, 1.0f};
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHTING);
-
 
 	/* Draw Board */
 	glColor4f(1, 1, 1, 1);
@@ -158,12 +177,31 @@ void Display()
 	}
 
 
-	DealClick();
+	glPushMatrix();
+	glPushAttrib(GL_ALL_ATTRIB_BITS);
+		DealClick();
+		GameSystem.Refresh();
+		DrawVirtualMirror();
+	glPopAttrib();
+	glPopMatrix();
 
-	GameSystem.Refresh();
-
-	DrawVirtualMirror();
-
+	/*
+	glLoadIdentity();
+	glLightfv(GL_LIGHT0, GL_AMBIENT, Light0Ambient);            // Setup The Ambient Light
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, Light0Diffuse);            // Setup The Diffuse Light
+    glLightfv(GL_LIGHT0, GL_SPECULAR,Light0Specular);       // Setup The Specular Light
+    glLightfv(GL_LIGHT0, GL_POSITION,Light0Position);   // Position The Light
+    glEnable(GL_LIGHT0); 
+	
+    glLightfv(GL_LIGHT1, GL_AMBIENT, Light1Ambient);            // Setup The Ambient Light
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, Light1Diffuse);            // Setup The Diffuse Light
+    glLightfv(GL_LIGHT1, GL_SPECULAR,Light1Specular);       // Setup The Specular Light
+    glLightfv(GL_LIGHT1, GL_POSITION,Light1Position);   // Position The Light
+    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION,Light1Direction);    // Direction The Light
+    glLightf(GL_LIGHT1, GL_SPOT_CUTOFF,10.0);
+    glLighti(GL_LIGHT1, GL_SPOT_EXPONENT,64);
+    glEnable(GL_LIGHT1);
+	*/
 	glutSwapBuffers(); 
 }
 
@@ -218,7 +256,7 @@ void Init_Logic()
 
 	MousePickMirror = -1;
 	MouseState = 0;
-	GameSystem.LoadMap("Reflection\\data\\map\\map0.in");
+	GameSystem.setLevel(0);
 }
 
 void Init_GLUT(int argc, char** argv)
@@ -243,9 +281,10 @@ void Init_GL()
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
 	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
-
+	//glEnable(GL_LIGHTING);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 	
+	/*
 	GLfloat LightAmbient[]= { 1.0f, 1.0f, 1.0f, 1.0f }; 
 	GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
     GLfloat lightPosition[] = {1.0f, 1.0f, 0.5f, 1.0f};
@@ -254,10 +293,13 @@ void Init_GL()
     glLightfv(GL_LIGHT1, GL_POSITION, lightPosition);
 	glEnable(GL_LIGHT1);
 	glEnable(GL_LIGHTING);
+	*/
 	glEnable(GL_COLOR_MATERIAL);						// Enable Material Coloring
 	
 	LoadGLTextures(floor_texture[0], "Reflection\\data\\face.bmp");
 	BuildTexture_new(floor_texture[1], "Reflection\\data\\ABC.jpg"); 
+	LoadGLTextures(WhiteTexture, "Reflection\\data\\WhiteT.bmp");
+	LoadGLTextures(BlackTexture, "Reflection\\data\\BlackT.bmp");
 	//LoadGLTextures(floor_texture[1], "Reflection\\data\\ABC.bmp");
 	SkyBox.setSkyTexture();
 	

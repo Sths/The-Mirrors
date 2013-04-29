@@ -66,13 +66,12 @@ void CHC_Mirror::Draw() {
 		Load();
 		Loaded = true;
 	}
+	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glPushMatrix();
-	//glLoadIdentity();
 	glTranslatef(Position[0], Position[1], Position[2]);
 	glRotatef(Normal[1] * 360, 0, 1, 0);
-	//cout << Normal[1] << endl;
-	//cout << FileTextures.size() << endl;
 	if (TextureIndex != -1) glBindTexture(GL_TEXTURE_2D, FileTextures[TextureIndex]);
 	glCallList(ViewList);
 	glPopMatrix();
+	glPopAttrib();
 }

@@ -8,14 +8,39 @@ extern CHC_Laser	DrawLaser;
 int  PickMirrorState;
 static bool mark[MAP_WIDTH][MAP_HEIGHT][8];		//hash
 
+extern GLuint WhiteTexture;
+extern GLuint BlackTexture;
+
+void DrawBox(int x, int y, int _color, bool light)
+{
+	CHC_Vector3 color = Color2Vector(_color);
+	glPushAttrib(GL_ENABLE_BIT);
+	glPushMatrix();
+		if (light) {
+			glBindTexture(GL_TEXTURE_2D, WhiteTexture);		//加纹理来高亮
+		} else {	
+			glBindTexture(GL_TEXTURE_2D, BlackTexture);		//加纹理来高亮
+		}
+		glColor4f(SEP(color), 1.0);
+		glTranslated((float)x, 0.5, (float)y);
+		glutSolidCube(1.0);
+	glPopMatrix();
+	glPopAttrib();
+}
+
 void CHC_GameSystem::Restart()
 {
 	for (int i = 0; i != NUM_MIRROR_SORT; i++) {
 		now_nm[i] = num_mirror[i];
 	}
 	for (int i = 0; i != map_w; i++)
-		for (int j = 0; j != map_h; j++)
+		for (int j = 0; j != map_h; j++) {
 			now_map[i][j] = ori_map[i][j];
+			if (!ori_map[i][j].isSender()) {
+				for (int k = 0; k != 4; k++)
+					now_map[i][j].col[k].setColor(0, 0, 0);
+			}
+		}
 	MousePickMirror = -1;
 }
 
@@ -85,11 +110,20 @@ bool CHC_GameSystem::Delete_mirror(int x, int y)
 }
 
 bool CHC_GameSystem::Win() {
+	CHC_Color RC;
 	for (int i = 0; i != map_w; i++)
 		for (int j = 0; j != map_h; j++)
-			if (now_map[i][j].isReceive() && !(now_map[i][j].col[0] == ori_map[i][j].col[0])) {
-				return false;
+			if (ori_map[i][j].isReceive()) {
+				RC.setColor(0, 0, 0);
+				for (int k = 0; k != 4; k++) {
+					RC.add(now_map[i][j].col[k]);
+				}
+				if (!(RC >= ori_map[i][j].col[0])) {
+					win_flag = false;
+					return false;
+				}
 			}
+	win_flag = true;
 	return true;
 }
 
@@ -119,32 +153,19 @@ void CHC_GameSystem::GameDraw()
 				DrawMirror.Set_Direction(now_map[i][j].dir);
 				DrawMirror.Set_Position(i, j);
 				DrawMirror.Draw();
-			} else 
+			}
+		}
+	for (int i = 0; i != map_w; i++)
+		for (int j = 0; j != map_h; j++) {
 			if (now_map[i][j].isSender()) {
-				glPushMatrix();
-					glTranslated((float)i, 0.5, (float)j);
-					glColor3f(0.0, 0.0, 1.0);
-					glutSolidCube(1);
-				glPopMatrix();
+				DrawBox(i, j, ori_map[i][j].col[ori_map[i][j].dir / 2].changeToRGB(), true);
 			} else 
 			if (now_map[i][j].isReceive()) {
 				RC.setColor(0, 0, 0);
 				for (int k = 0; k != 4; k++) {
 					RC.add(now_map[i][j].col[k]);
 				}
-				if (RC >= ori_map[i][j].col[0]) {
-					glPushMatrix();
-						glTranslated((float)i, 0.5, (float)j);
-						glColor3f(0.0, 1.0, 0.0);
-						glutSolidCube(1);
-					glPopMatrix();
-				} else {
-					glPushMatrix();
-						glTranslated((float)i, 0.5, (float)j);
-						glColor3f(1.0, 0.0, 0.0);
-						glutSolidCube(1);
-					glPopMatrix();
-				}
+				DrawBox(i, j, ori_map[i][j].col[0].changeToRGB(), RC >= ori_map[i][j].col[0]);
 			}
 		}
 	for (int i = 0; i != map_w; i++)
@@ -158,7 +179,6 @@ void CHC_GameSystem::GameDraw()
 				DrawLaser.Draw();
 			}
 		}
-	
 	DrawMirrorToolbar();
 }
 
@@ -169,12 +189,39 @@ void CHC_GameSystem::RefreshBackTrace(int x, int y, int d, CHC_Color & col)
 	x += dx[d/2], y += dy[d/2];
 	if (!InMap(x, y) || mark[x][y][d]) return;
 	now_map[x][y].col[(d / 2 + 2) % 4].add(col);
+	
+	int d_1, d_2;
 	if (now_map[x][y].isMirror()) {
-		d = Reflection(d, now_map[x][y].dir, 0);
-		if (d < 0) return;
+		if (now_map[x][y].mirror_s == 0) {
+			d_1 = Reflection(d, now_map[x][y].dir, 0);
+			if (d_1 < 0) return;
+			RefreshBackTrace(x, y, d_1, col);
+		} else 
+		if (now_map[x][y].mirror_s == 2) {
+			d_1 = Reflection(d, now_map[x][y].dir, 0);
+			d_2 = Reflection(d, (now_map[x][y].dir + 4) % NUM_MIRROR_STATE, 0);
+			if (d_1 >= 0) RefreshBackTrace(x, y, d_1, col);
+			else if (d_2 >= 0) RefreshBackTrace(x, y, d_2, col);
+		} else 
+		if (now_map[x][y].mirror_s == 4) {
+			d_1 = Reflection(d, now_map[x][y].dir, 0);
+			d_2 = Reflection(d, (now_map[x][y].dir + 4) % NUM_MIRROR_STATE, 0);
+			if (d_1 >= 0) RefreshBackTrace(x, y, d_1, col);
+			else if (d_2 >= 0) RefreshBackTrace(x, y, d_2, col);
+			if (d / 2 % 2 == 1) {
+				// -
+				if (now_map[x][y].dir != 0 && now_map[x][y].dir != 4) RefreshBackTrace(x, y, d, col);
+			} else {
+				// |
+				if (now_map[x][y].dir != 2 && now_map[x][y].dir != 6) RefreshBackTrace(x, y, d, col); 
+			}
+		}
 	} else
-		if (now_map[x][y].isSender()) return;
-	RefreshBackTrace(x, y, d, col);
+	if (now_map[x][y].isSender()) {
+		return;
+	} else {
+		RefreshBackTrace(x, y, d, col);
+	}
 }
 
 void CHC_GameSystem::Refresh()
@@ -185,6 +232,9 @@ void CHC_GameSystem::Refresh()
 		if (!now_map[i][j].isSender()) {
 			for (int k = 0; k != 4; k++)
 				now_map[i][j].col[k].setColor(0, 0, 0); 
+		} else {
+			for (int k = 0; k != 4; k++)
+				now_map[i][j].col[k] = ori_map[i][j].col[k]; 	
 		}
 
 	for (int stx = 0; stx != map_w; stx++)
@@ -296,7 +346,6 @@ void CHC_GameSystem::getnearest(CHC_Line & L , CHC_Vector3 & p)
 	for (int i = 0 ; i < map_w; i++)
 		for (int j = 0 ; j < map_h; j++)
 			if ( now_map[i][j].isMirror() ) {
-				printf("Find it !\n");
 				CHC_Mir_Info temp(now_map[i][j].dir, i, j);
 				float t1 = L.isItersectionplane(temp.x[0], temp.n, tempP);
 				if (L.isOnMirror(tempP,temp.x[0],temp.x[1],temp.x[2],temp.x[3]) && t1 < t){
@@ -307,4 +356,20 @@ void CHC_GameSystem::getnearest(CHC_Line & L , CHC_Vector3 & p)
 				}
 			}
 	p = CHC_Vector3(markx, marky, mark);
+}
+
+void CHC_GameSystem::setLevel(int Lv)
+{
+	nowLevel = Lv;
+	char mapname[30] = "Reflection\\data\\map\\map.in";
+	char st[5];
+	int Len = strlen(mapname);
+	itoa(Lv, st, 10);
+	strcat(mapname, st);
+	LoadMap(mapname);
+}
+
+void CHC_GameSystem::NextLevel()
+{
+	setLevel(nowLevel + 1);
 }
