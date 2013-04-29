@@ -8,6 +8,11 @@ CHC_Mirror::CHC_Mirror(int x, int y, int dir) {
 	Normal = Dir2Normal(dir);
 }
 
+CHC_Mirror::CHC_Mirror(CHC_Vector3 _Position, int dir) {
+	Position = _Position;
+	Normal = Dir2Normal(dir);
+}
+
 void CHC_Mirror::Set_Position(int x, int y) {
 	Position = Grid(x, y);
 }

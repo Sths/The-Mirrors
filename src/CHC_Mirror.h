@@ -9,6 +9,7 @@ class CHC_Mirror:CHC_Object {
 public:
 	CHC_Mirror() {}
 	CHC_Mirror(int x, int y, int dir);
+	CHC_Mirror(CHC_Vector3 _Position, int dir);
 	void Set_Position(int x, int y);
 	void Set_Direction(int dir);
 	void Load();
